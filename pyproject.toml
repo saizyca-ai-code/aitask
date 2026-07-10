@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aitask"
+version = "0.1.0"
+description = "Cross-AI-tool CLI + library + MCP server for the AiCodeTask dev workflow"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "saizyca-ai-code" }]
+keywords = ["aicodetask", "ai-agent", "mcp", "claude-code", "gemini"]
+# Intentional: ZERO required deps — pure stdlib client (urllib + json).
+# MCP server (Phase C) adds `mcp` optional dependency.
+dependencies = []
+
+[project.optional-dependencies]
+mcp = ["mcp>=1.0"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+aitask = "aitask.cli:main"
+aitask-mcp = "aitask.mcp:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
