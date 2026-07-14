@@ -6,3 +6,4 @@ dist/
 .venv/
 *.egg
 .pytest_cache/
+.claude/aitask-config.json
