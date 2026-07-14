@@ -62,7 +62,24 @@ def _build_server():
 
     cfg = load_config()
     client = AiTaskClient.from_config(cfg)
-    server = FastMCP("aitask")
+    server = FastMCP(
+        "aitask",
+        instructions=(
+            "AiCodeTask — AI dev-progress tracker (tasks + documents).\n\n"
+            "BEFORE using any aitask_* write tool (aitask_new_task, aitask_log, "
+            "aitask_create_decision / _plan / _spike, aitask_edit), call "
+            "`aitask_get_conventions` ONCE this session to load the collaboration "
+            "conventions: the dual-track markdown tag vocabulary (連結類 / 資訊類), "
+            "task / decision / plan / spike body structure, the '下次接手' handoff "
+            "markers, and the deep-link rule for referencing #NN.\n\n"
+            "These tools give you ACCESS to the tracker (the WHERE); "
+            "`aitask_get_conventions` tells you HOW to write so your markdown "
+            "matches the project's format. Skipping it produces plain, "
+            "convention-less task/doc bodies. AICONTEXT.md is the single source "
+            "of truth for conventions — not any per-tool CLAUDE.md reference "
+            "(that file belongs to a different client and is not visible here)."
+        ),
+    )
 
     # Resolve AICONTEXT.md path once — package root is 3 levels up from this
     # file: src/aitask/mcp.py → src/aitask → src → <pkg root> (containing
@@ -168,7 +185,7 @@ def _build_server():
         tags: Optional[dict] = None,
     ) -> dict:
         """Create a new task with the project's dual-track convention
-        (CLAUDE.md decision #5).
+        (call aitask_get_conventions for the full tag vocabulary + structure).
 
         Args:
             title: task title (e.g. "[shots] foo bar"). The CLI auto-prepends
@@ -295,7 +312,8 @@ def _build_server():
         """Create a [decision] document (status=published).
 
         IMPORTANT: body MUST contain the section '否決方案' (rejected
-        alternatives) per CLAUDE.md convention. The tool refuses to create
+        alternatives) per the project convention (see aitask_get_conventions).
+        The tool refuses to create
         a decision doc without it, because decisions without recorded
         alternatives lose all learning value over time. Include a
         `### 否決方案` section listing the options NOT chosen and why.
@@ -317,7 +335,7 @@ def _build_server():
     def aitask_create_spike(title: str, body: str = "") -> dict:
         """Create a [spike] document (status=draft) — an exploratory
         'want to do X, not sure how yet' record (pre-plan vision layer).
-        Title auto-prefixed '[spike]'. See CLAUDE.md spike conventions."""
+        Title auto-prefixed '[spike]'. See aitask_get_conventions for spike conventions."""
         doc_id = client.create_doc_typed(
             title, body, doc_type="spike", prefix="[spike]",
         )
