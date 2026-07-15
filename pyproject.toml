@@ -24,3 +24,10 @@ aitask-mcp = "aitask.mcp:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+# pythonpath=src → tests import `aitask` from source without needing an
+# editable install (also what CI relies on). testpaths keeps `pytest`
+# (no args) scoped to this repo's suite.
+pythonpath = ["src"]
+testpaths = ["tests"]
