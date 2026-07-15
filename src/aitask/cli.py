@@ -413,7 +413,11 @@ def cmd_list(client: AiTaskClient, args) -> int:
     items = client.list_tasks()
     opts = client.get_task_status_options()
     status_label = {o["id"]: o["label"] for o in opts.get("options", [])}
-    done_ids = {o["id"] for o in opts.get("options", []) if o.get("is_done")}
+    # Statuses hidden from the default list: completed (is_done) + parked.
+    # 'deferred' is a conventional "not now, maybe later" status — kept off the
+    # active list like done. Reveal both with --include-done.
+    hidden_ids = {o["id"] for o in opts.get("options", []) if o.get("is_done")}
+    hidden_ids.add("deferred")
 
     groups: dict[str, list[dict]] = {}
     for it in items:
@@ -424,10 +428,10 @@ def cmd_list(client: AiTaskClient, args) -> int:
     order_hint = ["in_progress", "pending", "review", "blocked"]
     sorted_keys = (
         [k for k in order_hint if k in groups]
-        + sorted(k for k in groups if k not in order_hint and k not in done_ids)
+        + sorted(k for k in groups if k not in order_hint and k not in hidden_ids)
     )
     if args.include_done:
-        sorted_keys += sorted(k for k in groups if k in done_ids)
+        sorted_keys += sorted(k for k in groups if k in hidden_ids)
 
     for s in sorted_keys:
         label = status_label.get(s, s)
