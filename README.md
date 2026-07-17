@@ -144,6 +144,7 @@ aitask log 42 "commit abc123 — sub 2 完成"   # append timestamped note
 aitask log 50 "補充結論..." --doc    # append to a DOC body (separate id space!)
 aitask done 42                       # mark done (follows workflow)
 aitask update 42 in_progress         # set status (follows workflow)
+aitask update 19 published --doc     # set a DOC's status (separate id space!)
 aitask done 42 --force               # skip workflow — Owner/admin only
 ```
 

@@ -666,10 +666,29 @@ def cmd_commits(client: AiTaskClient, args) -> int:
 
 
 def cmd_update(client: AiTaskClient, args) -> int:
-    client.set_task_status(args.task_id, args.status_id,
-                           override=getattr(args, "force", False))
-    print(f"✓ task #{args.task_id} → status={args.status_id}"
-          + (" [forced]" if getattr(args, "force", False) else ""))
+    force = getattr(args, "force", False)
+    suffix = " [forced]" if force else ""
+
+    # --doc: set a DOCUMENT's status. tasks/docs are separate id namespaces;
+    # without this flag `update` always targeted a *task*, silently moving the
+    # wrong item's status when the caller meant a same-numbered doc (the same
+    # footgun `log --doc` exists for).
+    if getattr(args, "doc", False):
+        client.set_doc_status(args.task_id, args.status_id, override=force)
+        print(f"✓ doc #{args.task_id} → status={args.status_id}{suffix}")
+        return 0
+
+    client.set_task_status(args.task_id, args.status_id, override=force)
+    print(f"✓ task #{args.task_id} → status={args.status_id}{suffix}")
+
+    # Collision heads-up: if a document shares this id, the caller may have
+    # meant the doc. Cheap probe; ignore lookup errors (no such doc).
+    try:
+        client.get_doc(args.task_id)
+        print(f"  ⚠ #{args.task_id} 也是一份文件；剛改的是 task 的 status。"
+              f"要改文件用：aitask update {args.task_id} {args.status_id} --doc")
+    except Exception:
+        pass
     return 0
 
 
@@ -1829,9 +1848,12 @@ def build_parser() -> argparse.ArgumentParser:
     prm.set_defaults(func=cmd_rm)
 
     # update
-    pu = sub.add_parser("update", help="set task status (follows workflow; --force to skip)")
-    pu.add_argument("task_id", type=int)
-    pu.add_argument("status_id", help="status id (e.g. 'in_progress', 'done')")
+    pu = sub.add_parser("update", help="set task status (or a doc's with --doc); follows workflow, --force to skip")
+    pu.add_argument("task_id", type=int, help="task id (or doc id when --doc given)")
+    pu.add_argument("status_id",
+                    help="status id — tasks: 'in_progress' / 'done'; docs: 'draft' / 'published'")
+    pu.add_argument("--doc", action="store_true",
+                    help="set a DOCUMENT's status instead of a task (tasks/docs are separate id namespaces)")
     pu.add_argument("--force", action="store_true",
                     help="skip workflow (Owner/admin only); default follows the "
                          "workflow — works for any member when it's disabled")

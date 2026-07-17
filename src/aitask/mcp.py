@@ -275,11 +275,28 @@ def _build_server():
         return {"id": task_id, "logged": True, "commit_hash": commit_hash}
 
     @server.tool()
-    def aitask_set_status(task_id: int, status: str) -> dict:
-        """Explicitly set a task's status (overrides workflow). Use when
-        you need to move tasks through specific states beyond just done.
-        Available status ids depend on the module — call aitask_list first
-        if unsure."""
+    def aitask_set_status(task_id: int, status: str,
+                          is_doc: bool = False) -> dict:
+        """Explicitly set a task's status (or a document's with is_doc=True).
+        Use when you need to move an item through specific states beyond just
+        done. tasks and docs are SEPARATE id namespaces — set is_doc to target
+        a document, or you will silently move a same-numbered task instead.
+
+        Follows the project's workflow: when the module's workflow is disabled
+        any member may set any status; when enabled the role needs the
+        transition granted. The Owner-only workflow-skip is deliberately not
+        exposed here — use the CLI's `aitask update ... --force` for that.
+
+        Args:
+            task_id: id of the task (or doc when is_doc=True).
+            status: status id — tasks 'in_progress' / 'done', docs 'draft' /
+                'published'. Available ids depend on the module; call
+                aitask_list first if unsure.
+            is_doc: True → set a DOCUMENT's status instead of a task's.
+        """
+        if is_doc:
+            client.set_doc_status(task_id, status)
+            return {"id": task_id, "status": status, "is_doc": True}
         client.set_task_status(task_id, status)
         return {"id": task_id, "status": status}
 
