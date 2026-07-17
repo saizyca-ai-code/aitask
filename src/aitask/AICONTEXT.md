@@ -164,7 +164,20 @@ aitask log 43 "進度..."                # → 寫進 task #43 的 description
 ```
 
 不加 `--doc` 而 id 剛好也是一份 doc 時，CLI 會印 collision 提醒（曾發生實際
-事故：spike 結論被誤寫進同號 task）。讀文件用 `aitask get <id> --doc`。
+事故：spike 結論被誤寫進同號 task）。
+
+**同一個 footgun 適用於整個 `--doc` 家族**，不只 `log`：
+
+```bash
+aitask get <id> --doc                   # 讀文件
+aitask update <id> published --doc      # 改文件 status（draft / published）
+aitask edit <id> --doc --body @f.md     # 取代文件 body
+aitask rm <id> --doc --yes              # 刪文件
+```
+
+`update` 與 `log` 一樣，漏了 `--doc` 會靜默地改到同號 **task** 的 status，
+所以同樣會印 collision 提醒。走 MCP 的話對應 `is_doc=True`
+（`aitask_log` / `aitask_set_status`）。
 
 ## Session 視覺驗證檢查表（dev9 #277）
 
