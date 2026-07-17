@@ -81,21 +81,10 @@ def _build_server():
         ),
     )
 
-    # Resolve AICONTEXT.md path once — package root is 3 levels up from this
-    # file: src/aitask/mcp.py → src/aitask → src → <pkg root> (containing
-    # AICONTEXT.md). Walking up because the installed location differs from
-    # the dev location (editable vs site-packages) — we ship AICONTEXT.md
-    # alongside the package's pyproject.toml in either layout.
-    _here = Path(__file__).resolve()
-    _aicontext_path = None
-    for candidate in [
-        _here.parent.parent.parent / "AICONTEXT.md",          # editable: <repo root>/AICONTEXT.md
-        _here.parent.parent / "AICONTEXT.md",                  # site-packages variant
-        _here.parent / "AICONTEXT.md",                         # in-package fallback
-    ]:
-        if candidate.is_file():
-            _aicontext_path = candidate
-            break
+    # AICONTEXT.md ships inside the package (pyproject package-data), so the
+    # same path resolves for both editable and wheel installs.
+    _candidate = Path(__file__).resolve().parent / "AICONTEXT.md"
+    _aicontext_path = _candidate if _candidate.is_file() else None
 
     # ── Tools ───────────────────────────────────────────────────────────
 
@@ -117,10 +106,10 @@ def _build_server():
         """
         if _aicontext_path is None:
             return (
-                "AICONTEXT.md not found in expected locations. "
-                "The aitask package may be installed without its conventions "
-                "doc. Manual fallback: ask the user to point you at the "
-                "AICONTEXT.md file in the aitask package's repo root."
+                f"AICONTEXT.md not found at {_candidate}. The aitask package "
+                "was installed without its conventions doc (expected as "
+                "package-data alongside the module). Manual fallback: ask the "
+                "user to point you at AICONTEXT.md in the aitask source repo."
             )
         return _aicontext_path.read_text(encoding="utf-8")
 

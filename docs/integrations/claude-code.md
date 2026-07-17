@@ -63,8 +63,8 @@ aitask conventions（dual-track 標籤、L1/L2/L3 觸發層、下次接手、否
 精神等），Claude Code 不用再額外灌。
 
 如果**沒有** — `aitask init` 會在 `CLAUDE.md` 補一段基本提示；更完整的
-conventions 可以 paste `AICONTEXT.md`（本 repo 根目錄，跟著 `pip install`
-一起裝進去）的內容到該專案的 `CLAUDE.md` 或 user system prompt。
+conventions 可以 paste `src/aitask/AICONTEXT.md`（package data，跟著
+`pip install` 一起裝進去）的內容到該專案的 `CLAUDE.md` 或 user system prompt。
 AICONTEXT.md 是 tool-agnostic 的、跨 AI 工具通用版。
 
 ## 驗證

@@ -266,7 +266,7 @@ aitask 的同一組能力散在四處，**加或改一個指令時四處都要�
 1. **CLI** — `src/aitask/cli.py`：`cmd_xxx` handler + `sub.add_parser(...)`
 2. **MCP** — `src/aitask/mcp.py`：對應 `@server.tool()`（給走 MCP 的 Antigravity/Cursor）
 3. **Skill** — `.claude/commands/aitask.md`：「子指令一覽」表 + 範例（給 Claude Code）
-4. **Docs** — 本 `README.md` 工具清單 + 必要時 `AICONTEXT.md`（conventions 面）
+4. **Docs** — 本 `README.md` 工具清單 + 必要時 `src/aitask/AICONTEXT.md`（conventions 面）
 
 **例外（decision #114 Phase 1）**：`setup` / `init` **不進 MCP**。兩者是互動式
 bootstrap（setup 要密碼 hidden input、init 要在還沒有 config 的情況下先跑起來）——
@@ -281,7 +281,11 @@ MCP server 啟動本身就要求 config 已存在（走 env var），概念上�
 裝好 CLI / MCP 後 AI 還需要知道**怎麼用**aitask 才能配合你的工作流（什麼時
 候呼叫、dual-track 標籤怎麼填、「下次接手」conventions 等）。
 
-`AICONTEXT.md` 是 tool-agnostic 的合作 conventions、paste 進任何 AI 工具的
-system prompt / workspace rules 就能用。Claude Code 走 `CLAUDE.md` 自動載入
-所以該檔本身就含 aitask 章節 — 別的工具（Antigravity / Cursor / ...）需要
-手動 paste AICONTEXT.md。
+`src/aitask/AICONTEXT.md` 是 tool-agnostic 的合作 conventions、paste 進任何 AI
+工具的 system prompt / workspace rules 就能用。它是 **package data**（跟著
+`pip install` 一起裝進去，所以 `aitask_get_conventions` 在 wheel 安裝下也讀得
+到）—— 別把它移回 repo 根目錄，那樣只有 editable 安裝能用。
+
+Claude Code 走 `CLAUDE.md` 自動載入、Codex 走 `AGENTS.md`，兩者都只是薄指標指
+向這份。別的工具（Antigravity / Cursor / ...）走 MCP `aitask_get_conventions`
+自動拿，或手動 paste。

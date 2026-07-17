@@ -7,13 +7,17 @@ CLI + Python client lib + MCP server。
 
 ---
 
-## 協作慣例 → 讀 `AICONTEXT.md`（session 開始先讀一遍）
+## 協作慣例 → 讀 `src/aitask/AICONTEXT.md`（session 開始先讀一遍）
 
 本 repo 的**合作方式**（雙軌標籤詞彙、decision 文件必含「否決方案」、
 提案 → 確認 → 執行、方案 A/B/C、誠實規則、commit 切細、「下次接手」收尾、
-deep-link 規約…）**單一來源在本 repo 的 `AICONTEXT.md`**。它是 tool-agnostic
-版、同時給走 MCP 的其他 AI 工具（Antigravity / Cursor）用。本檔只放 repo 專屬
-context，不重複 AICONTEXT.md 的內容。
+deep-link 規約…）**單一來源在 `src/aitask/AICONTEXT.md`**。它是 tool-agnostic
+版、同時給走 MCP 的其他 AI 工具（Antigravity / Cursor / Codex）用。本檔只放
+repo 專屬 context，不重複 AICONTEXT.md 的內容。
+
+> 它住在 package 裡（不是 repo 根目錄）是刻意的：它是 `aitask_get_conventions`
+> 的**執行期資源**，得靠 pyproject `package-data` 才能跟著 wheel 走。移回根目錄
+> 會讓非 editable 安裝讀不到（`tests/test_packaging.py` 守這條）。
 
 > ⚠️ **Dual-sync（decision #25 / #116）**：`AICONTEXT.md` 與 MSSceneDetect repo 的
 > `CLAUDE.md` + `/aitask` skill 是同一套慣例的兩份。改**任何** convention，兩邊
@@ -40,7 +44,7 @@ context，不重複 AICONTEXT.md 的內容。
 | `src/aitask/mcp.py` | `aitask-mcp` MCP server | Antigravity / Cursor 等 MCP client |
 | `src/aitask/client.py` | REST client lib | CLI + MCP 共用 |
 | `src/aitask/parse.py` / `tags.py` | 標籤 parser + 雙軌 tag 組裝 | 上面三者共用 |
-| `AICONTEXT.md` | tool-agnostic 慣例（`aitask_get_conventions` 回傳它） | MCP client + 本檔指過去 |
+| `src/aitask/AICONTEXT.md` | tool-agnostic 慣例（`aitask_get_conventions` 回傳它）；package data | MCP client + `CLAUDE.md` / `AGENTS.md` 指過去 |
 
 ---
 

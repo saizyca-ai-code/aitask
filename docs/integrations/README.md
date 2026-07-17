@@ -16,9 +16,11 @@
 2. **合作 conventions** — 「什麼時候該呼叫」「dual-track 標籤怎麼寫」「下次
    接手 convention」「否決方案精神」等。**單裝 MCP / CLI 不會自動帶這層**。
 
-合作 conventions 的 source of truth：[`../../AICONTEXT.md`](../../AICONTEXT.md)。
-是 tool-agnostic 的 markdown、paste 進任何 AI 工具的 system prompt /
-workspace rules 就能用。
+合作 conventions 的 source of truth：
+[`../../src/aitask/AICONTEXT.md`](../../src/aitask/AICONTEXT.md)。是
+tool-agnostic 的 markdown、paste 進任何 AI 工具的 system prompt /
+workspace rules 就能用。它是 package data（跟著 `pip install` 走），所以走
+MCP 的工具用 `aitask_get_conventions` 就能直接拿到全文、不用手動 paste。
 
 當前 recipe：
 
@@ -26,10 +28,12 @@ workspace rules 就能用。
 |---|---|---|
 | Claude Code | MCP server + skill 雙路徑 | [claude-code.md](claude-code.md) |
 | Gemini Antigravity | MCP server | [gemini-antigravity.md](gemini-antigravity.md) |
+| Codex | MCP server + `AGENTS.md` | [codex.md](codex.md) |
 
 ## 通用 system-prompt fragment（短版）
 
-完整 conventions 在 [`../../AICONTEXT.md`](../../AICONTEXT.md)。下面只是
+完整 conventions 在
+[`../../src/aitask/AICONTEXT.md`](../../src/aitask/AICONTEXT.md)。下面只是
 **最短的工具用法 cheat sheet**，給只想要 quick reference 的場景：
 
 ````markdown

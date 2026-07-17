@@ -76,9 +76,9 @@ Python 要用完整路徑。
    →   後續行為按 conventions 走（dual-track 標籤、下次接手、否決方案、L1/L2/L3
    分級等）。
 
-   **替代做法**（不想多一次 tool call）：手動 paste `AICONTEXT.md`（本 repo
-   根目錄，跟著 `pip install` 一起裝進去）整份進 workspace rules。Convention
-   更新時要重 paste。
+   **替代做法**（不想多一次 tool call）：手動 paste `src/aitask/AICONTEXT.md`
+   （package data，跟著 `pip install` 一起裝進去）整份進 workspace rules。
+   Convention 更新時要重 paste。
 
 ## 驗證
 

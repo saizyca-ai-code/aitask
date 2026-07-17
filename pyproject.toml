@@ -25,6 +25,13 @@ aitask-mcp = "aitask.mcp:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+# AICONTEXT.md is a RUNTIME resource, not just a doc: aitask_get_conventions
+# reads it and hands it to MCP clients. It must live inside the package so a
+# real (non-editable) wheel install ships it too — package-data can only
+# collect files under the package dir.
+[tool.setuptools.package-data]
+aitask = ["AICONTEXT.md"]
+
 [tool.pytest.ini_options]
 # pythonpath=src → tests import `aitask` from source without needing an
 # editable install (also what CI relies on). testpaths keeps `pytest`
