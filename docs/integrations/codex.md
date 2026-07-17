@@ -20,12 +20,19 @@
 
    [mcp_servers.aitask.env]
    AITASK_BASE_URL = "http://localhost:5173"
-   AITASK_PROJECT_ID = "51"
-   AITASK_USERNAME = "codex"
-   AITASK_PASSWORD = "your-password"
+   AITASK_PROJECT_ID = "<your-project-id>"
+   AITASK_USERNAME = "<your-username>"
+   AITASK_PASSWORD = "<your-password>"
    ```
-   帳密路徑在 token 失效時自動重登。或省掉 env、走 config 分層合併（全域
-   `~/.config/aitask/config.json` + 專案 `.claude/aitask-config.json`）。
+   > ⚠️ `<...>` 是佔位符，**不是預設值**。`project_id` 用 `aitask projects` 查、
+   > 或直接問 user 要記到哪個專案 —— 寫錯不會報錯，只會安靜地把資料寫進錯的
+   > 專案（AICONTEXT.md「專案識別安全」那節）。username 用你自己的帳號，不是
+   > 「codex」這種照抄文件的名字。
+
+   帳密路徑在 token 失效時**自動重登**（server 重啟也不斷）。或省掉 env、走
+   config 分層合併（全域 `~/.config/aitask/config.json` + 專案
+   `.claude/aitask-config.json`）—— 但若全域 config 只存 token 沒存帳密，
+   token 失效時無法自動重登，要重跑 `aitask login --save`。
 3. 重啟 Codex → 應看到 `aitask_list / aitask_new_task / ...` tools。
 
 ## 合作 conventions 從哪來

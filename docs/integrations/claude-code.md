@@ -26,14 +26,18 @@
          "args": ["-m", "aitask.mcp"],
          "env": {
            "AITASK_BASE_URL": "http://localhost:5173",
-           "AITASK_PROJECT_ID": "34",
-           "AITASK_USERNAME": "claude",
-           "AITASK_PASSWORD": "your-password"
+           "AITASK_PROJECT_ID": "<your-project-id>",
+           "AITASK_USERNAME": "<your-username>",
+           "AITASK_PASSWORD": "<your-password>"
          }
        }
      }
    }
    ```
+   > ⚠️ `<...>` 是佔位符，**不是預設值**。`project_id` 用 `aitask projects` 查、
+   > 或直接問 user 要記到哪個專案 — 寫錯不會報錯，只會安靜地把資料寫進錯的專案
+   > （AICONTEXT.md「專案識別安全」那節）。
+
    帳密路徑在 token 失效時自動重登（server 常重啟也不斷）。或省 env，讓它
    走 config 分層合併（全域 `~/.config/aitask/config.json` + 專案
    `.claude/aitask-config.json`，見 getting-started）。也可改 `AITASK_TOKEN`
