@@ -137,6 +137,19 @@ type 固定字彙 + 語意色（對齊 conventional commits；驅動洞察歷程
   `SUBTAG_COLOR`。
 - 只規範以後新建 task；舊 task 不 backfill。
 
+## Task 編號：先建再寫，不要猜（⚠ footgun）
+
+要在 **commit message 或程式碼註解**裡寫 `#NN` 時，先建 task 拿到真正的編號，
+再寫進去。不要因為「等一下會建」就填一個預測值。
+
+實際踩過：一次收尾連續五筆全差一號 —— 習慣是先寫程式碼註解與 commit message、
+最後才建 task，編號用猜的。後果是 **commit → task 的追溯整條斷掉**（task →
+commit 還在，因為 log 進去的 hash 是真的）。使用者點 commit 裡的編號找不到人，
+才發現這件事。
+
+雙向連結的價值就在於兩邊都能跳，斷一個方向等於少一半。而且 commit 一旦推出去
+就不好改，事後只能在 task 那端補一行「commit 裡寫的編號是筆誤」。
+
 ## 「下次接手」收尾 convention（跨 session 必備）
 
 每次 commit + log 完、若 task **未 done**，description 結尾 append 狀態記號。
