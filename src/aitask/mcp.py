@@ -430,17 +430,24 @@ def _build_server():
         return {"id": item_id, "edited": list(fields.keys()), "is_doc": is_doc}
 
     @server.tool()
-    def aitask_rm(item_id: int, is_doc: bool = False, force: bool = False) -> dict:
+    def aitask_rm(item_id: int, is_doc: bool = False,
+                  permanent: bool = False) -> dict:
         """Delete a task (default) or document (is_doc=True). Soft-delete
-        (archive) by default; force=True permanently deletes. The calling
-        agent is responsible for confirming intent before calling."""
+        (archive) by default; permanent=True is IRREVERSIBLE. The calling
+        agent is responsible for confirming intent before calling.
+
+        The parameter was named `force` until #10 — misleading, since
+        "force" reads as "skip the confirmation" (that is what it means on
+        the status-changing tools) rather than "destroy the data".
+        """
         if is_doc:
             client.get_doc(item_id)
-            client.delete_doc(item_id, force=force)
+            client.delete_doc(item_id, force=permanent)
         else:
             client.get_task(item_id)
-            client.delete_task(item_id, force=force)
-        return {"id": item_id, "deleted": True, "permanent": force, "is_doc": is_doc}
+            client.delete_task(item_id, force=permanent)
+        return {"id": item_id, "deleted": True, "permanent": permanent,
+                "is_doc": is_doc}
 
     return server
 

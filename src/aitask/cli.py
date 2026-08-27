@@ -655,20 +655,37 @@ def cmd_edit(client: AiTaskClient, args) -> int:
 
 def cmd_rm(client: AiTaskClient, args) -> int:
     """#85 — delete a task / doc (--doc). Soft-delete (archive) by default;
-    --force = permanent. Requires --yes (CLI is non-interactive, destructive)."""
+    --permanent = irreversible. Requires --yes (CLI is non-interactive).
+
+    #10 — `--force` used to be the permanent-delete flag, which reads exactly
+    backwards next to `done --force` / `update --force` (there it means "skip
+    the workflow, just do it"). `rm <id> --force --yes` therefore looked like
+    "yes, confirm" while performing an irreversible delete. `--force` is now
+    rejected outright rather than aliased — an alias would keep the dangerous
+    reading alive.
+    """
+    if getattr(args, "force", False):
+        print("✗ `rm --force` is no longer accepted — it read as "
+              "「確認執行」 but meant 「永久刪除」.\n"
+              "  --yes        confirm (this is the one you usually want)\n"
+              "  --permanent  irreversible delete instead of archive",
+              file=sys.stderr)
+        return 2
     is_doc = getattr(args, "doc", False)
     getter = client.get_doc if is_doc else client.get_task
     kind = "doc" if is_doc else "task"
     item = getter(args.id)  # validate existence (raises if missing)
     title = (item.get("title") or "")[:70]
     if not args.yes:
-        mode = "永久刪除" if args.force else "封存 (soft-delete)"
+        mode = "永久刪除" if args.permanent else "封存 (soft-delete)"
         print(f"將{mode} {kind} #{args.id}: {title}\n  加 --yes 確認執行"
-              + ("（永久刪除再加 --force）" if not args.force else ""),
+              + ("（要永久刪除再加 --permanent）" if not args.permanent else ""),
               file=sys.stderr)
         return 2
-    (client.delete_doc if is_doc else client.delete_task)(args.id, force=args.force)
-    print(f"✓ {'permanently deleted' if args.force else 'archived'} {kind} #{args.id}: {title}")
+    (client.delete_doc if is_doc else client.delete_task)(
+        args.id, force=args.permanent)
+    print(f"✓ {'permanently deleted' if args.permanent else 'archived'} "
+          f"{kind} #{args.id}: {title}")
     return 0
 
 
@@ -1909,10 +1926,14 @@ def build_parser() -> argparse.ArgumentParser:
     ped.set_defaults(func=cmd_edit)
 
     # rm — #85: delete task/doc (soft by default, --force permanent)
-    prm = sub.add_parser("rm", help="delete a task / doc (--doc); soft by default, --force permanent")
+    prm = sub.add_parser("rm", help="delete a task / doc (--doc); archives by default, --permanent to really delete")
     prm.add_argument("id", type=int, help="task id (or doc id when --doc given)")
     prm.add_argument("--doc", action="store_true", help="delete a DOCUMENT instead of a task")
-    prm.add_argument("--force", action="store_true", help="permanent delete (default = archive)")
+    prm.add_argument("--permanent", action="store_true",
+                     help="irreversible delete (default = archive/soft-delete)")
+    # #10 — kept only so it can be rejected with a pointer; NOT an alias
+    # for --permanent, that would preserve the footgun it was renamed from.
+    prm.add_argument("--force", action="store_true", help=argparse.SUPPRESS)
     prm.add_argument("--yes", action="store_true", help="confirm (required; CLI is non-interactive)")
     prm.set_defaults(func=cmd_rm)
 

@@ -185,8 +185,13 @@ aitask log 43 "進度..."                # → 寫進 task #43 的 description
 aitask get <id> --doc                   # 讀文件
 aitask update <id> published --doc      # 改文件 status（draft / published）
 aitask edit <id> --doc --body @f.md     # 取代文件 body
-aitask rm <id> --doc --yes              # 刪文件
+aitask rm <id> --doc --yes              # 刪文件（封存；--permanent 才是真刪）
 ```
+
+> `rm` 的 `--yes` 是「確認執行」、`--permanent` 才是不可逆刪除。**跟 `done`
+> / `update` 的 `--force`（跳過 workflow）不是同一件事** —— 這個 flag 以前
+> 就叫 `--force`，因為太容易誤讀成「確認」而改名，舊名現在會直接報錯。
+> MCP 對應 `aitask_rm(permanent=True)`。
 
 `update` 與 `log` 一樣，漏了 `--doc` 會靜默地改到同號 **task** 的 status，
 所以同樣會印 collision 提醒。走 MCP 的話對應 `is_doc=True`
