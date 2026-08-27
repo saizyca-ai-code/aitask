@@ -140,12 +140,21 @@ def _build_server():
         ]
 
     @server.tool()
-    def aitask_list(include_done: bool = False) -> dict:
-        """List pending tasks in the AiCodeTask project, grouped by status.
-        Set include_done=True to also show closed tasks. Use this at session
-        start to recover context, or whenever you need to find a task id."""
-        items = client.list_tasks()
-        opts = client.get_task_status_options()
+    def aitask_list(include_done: bool = False, kind: str = "task") -> dict:
+        """List items in the AiCodeTask project, grouped by status.
+        kind='task' (default) lists pending tasks — use this at session start
+        to recover context, or whenever you need to find a task id.
+        kind='doc' lists documents (plans / decisions / memoirs / notes)
+        instead; docs are never hidden, since 'published' counts as done on
+        the documents workflow but published decisions are exactly what you
+        want to see. Set include_done=True to also show closed tasks."""
+        if kind == "doc":
+            items = client.list_docs(fields="minimal")
+            opts = client.get_doc_status_options()
+            include_done = True
+        else:
+            items = client.list_tasks()
+            opts = client.get_task_status_options()
         status_label = {o["id"]: o["label"] for o in opts.get("options", [])}
         done_ids = {o["id"] for o in opts.get("options", []) if o.get("is_done")}
 

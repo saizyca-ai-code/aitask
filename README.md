@@ -136,6 +136,7 @@ aitask projects                      # discover project_id
 ```bash
 aitask list                          # pending tasks by status
 aitask list --include-done           # include closed
+aitask list --doc                    # documents grouped by status
 aitask new "[shots] foo bar" --complexity M --hours 3 \
     --tag "關鍵檔案: app/foo.py:12-30" \
     --tag "關聯任務: #51" \

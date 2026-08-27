@@ -2,7 +2,7 @@
 skill so existing muscle memory transfers.
 
 Subcommands (mirrors `.claude/commands/aitask.md` originals):
-    list                        list pending tasks grouped by status
+    list [--doc]                list pending tasks (or documents) by status
     new <title>                 create a task with dual-track structure
     done <id>                   mark task as done (status with is_done=True)
     log <id> <note>             append timestamped note to description
@@ -443,6 +443,8 @@ def cmd_init(client: AiTaskClient, args) -> int:
 
 
 def cmd_list(client: AiTaskClient, args) -> int:
+    if getattr(args, "doc", False):
+        return _list_docs(client)
     items = client.list_tasks()
     opts = client.get_task_status_options()
     status_label = {o["id"]: o["label"] for o in opts.get("options", [])}
@@ -471,6 +473,32 @@ def cmd_list(client: AiTaskClient, args) -> int:
         print(f"\n## {label} ({len(groups[s])})")
         for it in groups[s]:
             print(f"  #{it['id']:>3} {it.get('title', '')}")
+    return 0
+
+
+def _list_docs(client: AiTaskClient) -> int:
+    """`aitask list --doc` — documents grouped by status (#8).
+
+    No hiding here, unlike tasks: `published` is `is_done` on the documents
+    workflow, and published docs (decisions / memoirs) are exactly the ones
+    you want to see. `--include-done` is therefore a no-op for docs.
+    """
+    items = client.list_docs(fields="minimal")
+    opts = client.get_doc_status_options()
+    options = opts.get("options", [])
+    status_label = {o["id"]: o["label"] for o in options}
+    order = {o["id"]: o.get("sort_order", 99) for o in options}
+
+    groups: dict[str, list[dict]] = {}
+    for it in items:
+        groups.setdefault(it.get("status") or "unknown", []).append(it)
+
+    for s in sorted(groups, key=lambda k: (order.get(k, 99), k)):
+        print(f"\n## {status_label.get(s, s)} ({len(groups[s])})")
+        for it in groups[s]:
+            print(f"  #{it['id']:>3} {it.get('title', '')}")
+    if not items:
+        print("(no documents)")
     return 0
 
 
@@ -1834,7 +1862,9 @@ def build_parser() -> argparse.ArgumentParser:
     # list
     pl = sub.add_parser("list", help="list pending tasks grouped by status")
     pl.add_argument("--include-done", action="store_true",
-                    help="also show done/closed tasks")
+                    help="also show done/closed tasks (tasks only)")
+    pl.add_argument("--doc", action="store_true",
+                    help="list documents instead of tasks (all statuses)")
     pl.set_defaults(func=cmd_list)
 
     # new

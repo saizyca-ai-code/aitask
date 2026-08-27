@@ -491,6 +491,12 @@ class AiTaskClient:
         return self._request("POST", self._docs_path(f"/{doc_id}/status"),
                              {"status": status, "override": override})
 
+    def get_doc_status_options(self) -> dict:
+        pid = self._require_project_id()
+        return self._request(
+            "GET", f"/api/projects/{pid}/modules/{self.docs_module}/status-options"
+        )
+
     def get_doc_fields(self) -> list[dict]:
         pid = self._require_project_id()
         resp = self._request(
