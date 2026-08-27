@@ -530,6 +530,7 @@ class AiTaskClient:
 
         Mirrors the CLAUDE.md convention:
           * doc_type='decision' → status='published', prefix='[decision]'
+          * doc_type='memoir'   → status='published', prefix='[memoir]'
           * doc_type='plan'     → status='draft',     prefix='[plan]'
           * other               → status='draft',     prefix=None
         """
@@ -553,6 +554,10 @@ class AiTaskClient:
         if values:
             self.set_doc_field_values(doc_id, values)
 
-        target_status = "published" if doc_type == "decision" else "draft"
+        # memoir joins decision on the published side: both are "written =
+        # settled" records, and MSSceneDetect CLAUDE.md documents memoir as
+        # status=published (#8 — code said draft, doc said published).
+        target_status = ("published"
+                         if doc_type in ("decision", "memoir") else "draft")
         self.set_doc_status(doc_id, target_status)
         return doc_id

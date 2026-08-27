@@ -11,6 +11,7 @@ Subcommands (mirrors `.claude/commands/aitask.md` originals):
     decision <title> [body file] create [decision] document (status=published,
                                  enforces 否決方案 mention per CLAUDE.md)
     doc <type> <title> [body file] generic document creation
+                                 (memoir/decision → published, rest → draft)
 
 Usage:
     aitask list
