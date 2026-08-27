@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import locale
 import re
 import sys
 from pathlib import Path
@@ -86,13 +87,35 @@ def _require_modules(client: AiTaskClient, *needed: str) -> int:
     return 2
 
 
+def _read_stdin_text() -> str:
+    """Read stdin as UTF-8, bypassing the text wrapper Python built for us.
+
+    On Windows `sys.stdin` is `cp950` + `errors='surrogateescape'`, so piped
+    UTF-8 bytes come back half-mojibake with lone surrogates embedded — which
+    then blow up as `UnicodeEncodeError: surrogates not allowed` the moment
+    `json.dumps(...).encode('utf-8')` tries to send them. Read the raw buffer
+    instead and decode it ourselves (utf-8 first, locale as fallback for a
+    genuinely non-UTF-8 pipe).
+    """
+    buf = getattr(sys.stdin, "buffer", None)
+    if buf is None:  # already a text-only stream (tests / odd embeddings)
+        return sys.stdin.read()
+    raw = buf.read()
+    for enc in ("utf-8", locale.getpreferredencoding(False)):
+        try:
+            return raw.decode(enc)
+        except (UnicodeDecodeError, LookupError):
+            continue
+    return raw.decode("utf-8", errors="replace")
+
+
 def _read_body(arg: str | None) -> str:
     """If body arg starts with '@', treat as filename; '-' is stdin; else
     literal string."""
     if not arg:
         return ""
     if arg == "-":
-        return sys.stdin.read()
+        return _read_stdin_text()
     if arg.startswith("@"):
         return Path(arg[1:]).read_text(encoding="utf-8")
     return arg
