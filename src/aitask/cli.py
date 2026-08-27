@@ -41,14 +41,24 @@ from .tags import (
 from . import parse  # dev8 #130 Phase 1 — description slicing
 
 
-def _ensure_utf8_stdout():
-    """Windows cp950 console doesn't encode CJK / emoji — force utf-8.
-    Idempotent: skip when stdout is already utf-8 (e.g. caller pre-wrapped)."""
-    enc = getattr(sys.stdout, "encoding", "") or ""
-    if enc.lower().replace("-", "") == "utf8":
-        return
-    if hasattr(sys.stdout, "buffer"):
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+def _ensure_utf8_streams():
+    """Windows cp950 console doesn't encode CJK / emoji — force utf-8 on BOTH
+    stdout and stderr. stderr matters: every server error body (`{"detail":
+    "任務不存在"}`) and every `✗ ...` line goes there, and cp950 +
+    backslashreplace turned them into mojibake / `✗`.
+    Idempotent: skip a stream already utf-8 (e.g. caller pre-wrapped)."""
+    for name in ("stdout", "stderr"):
+        stream = getattr(sys, name, None)
+        if stream is None:
+            continue
+        enc = getattr(stream, "encoding", "") or ""
+        if enc.lower().replace("-", "") == "utf8":
+            continue
+        if hasattr(stream, "buffer"):
+            setattr(sys, name, io.TextIOWrapper(
+                stream.buffer, encoding="utf-8", errors="replace",
+                line_buffering=True,
+            ))
 
 
 def _parse_tags(raw_list: list[str]) -> dict[str, str]:
@@ -2063,7 +2073,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
-    _ensure_utf8_stdout()
+    _ensure_utf8_streams()
     parser = build_parser()
     args = parser.parse_args(argv)
     if getattr(args, "cmd", None) is None:
