@@ -914,6 +914,11 @@ def cmd_grep(client: AiTaskClient, args) -> int:
     dev8 #135 Phase 2 — uses server-side `/search` endpoint (LIKE filter +
     snippet generation). Server returns minimal projection (no full bodies),
     so this is token-efficient end-to-end.
+
+    ⚠️ It is a **substring** match, not a regex — the server runs SQL LIKE.
+    Backslash-escaped patterns match nothing; `[memoir]` works as-is. (#8:
+    help text used to claim regex, and `-i` / `--ctx` were accepted but
+    never read — both removed rather than left lying.)
     """
     pattern = args.pattern
     kinds: list[str] = []
@@ -941,7 +946,7 @@ def cmd_grep(client: AiTaskClient, args) -> int:
             if snip:
                 print(f"        {snip}")
     if total_hits == 0:
-        print(f"(no matches for {pattern!r})")
+        print(f"(no matches for \"{pattern}\")")
     return 0
 
 
@@ -1957,13 +1962,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     # grep — full-text search across descriptions
     pgr = sub.add_parser("grep",
-        help="search task/doc descriptions (regex), print id + snippet")
-    pgr.add_argument("pattern", help="regex pattern")
-    pgr.add_argument("--kind", choices=["task", "doc", "all"], default="task",
-                    help="which module to search (default: task)")
-    pgr.add_argument("-i", action="store_true", help="case-insensitive")
-    pgr.add_argument("--ctx", type=int, default=40,
-                    help="chars of context around match (default 40)")
+        help="substring search over task/doc bodies, print id + snippet")
+    pgr.add_argument("pattern",
+                    help="literal substring (server-side LIKE — NOT a regex)")
+    pgr.add_argument("--kind", choices=["task", "doc", "all"], default="all",
+                    help="which module to search (default: all)")
     pgr.set_defaults(func=cmd_grep)
 
     # refs — forward + reverse refs for an id

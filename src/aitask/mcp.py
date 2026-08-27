@@ -366,7 +366,10 @@ def _build_server():
     def aitask_grep(pattern: str, kind: str = "all") -> dict:
         """Full-text search across task / doc bodies. kind: 'task' | 'doc' |
         'all'. Returns matching items with id + title + snippet — the right
-        way to 'find related tasks' instead of guessing ids."""
+        way to 'find related tasks' instead of guessing ids.
+
+        `pattern` is a literal substring (server-side SQL LIKE), NOT a regex:
+        pass `[memoir]`, not an escaped `[memoir]` with backslashes."""
         out: dict = {}
         if kind in ("task", "all"):
             out["tasks"] = client.search_tasks(pattern, limit=100).get("items", [])

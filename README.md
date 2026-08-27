@@ -178,7 +178,8 @@ aitask get 42                        # structured slice (handoff/refs/tags/tail 
 aitask get 42 --handoff              # only the 下次接手 line
 aitask get 42 --digest               # ~80-150 token rule-based summary
 aitask get 19 --doc --full           # whole raw doc body
-aitask grep "shot_code" --kind all -i        # regex search task+doc bodies
+aitask grep "shot_code"                      # substring search over task+doc bodies
+aitask grep "shot_code" --kind doc           # docs only (default: all)
 aitask refs 32                       # forward + reverse refs (who mentions #32)
 aitask recent -n 10                  # most recently-logged items (session start)
 aitask recent --all --since 2026-06-01
