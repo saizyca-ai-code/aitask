@@ -1,0 +1,5 @@
+AiCodeTask — AI dev-progress tracker (tasks + documents).
+
+BEFORE using any aitask_* write tool (aitask_new_task, aitask_log, aitask_create_decision / _plan / _spike, aitask_edit), call `aitask_get_conventions` ONCE this session to load the collaboration conventions: the dual-track markdown tag vocabulary (連結類 / 資訊類), task / decision / plan / spike body structure, the '下次接手' handoff markers, and the deep-link rule for referencing #NN.
+
+These tools give you ACCESS to the tracker (the WHERE); `aitask_get_conventions` tells you HOW to write so your markdown matches the project's format. Skipping it produces plain, convention-less task/doc bodies. AICONTEXT.md is the single source of truth for conventions — not any per-tool CLAUDE.md reference (that file belongs to a different client and is not visible here).

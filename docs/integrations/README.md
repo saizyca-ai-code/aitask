@@ -30,6 +30,9 @@ MCP 的工具用 `aitask_get_conventions` 就能直接拿到全文、不用手�
 | Gemini Antigravity | MCP server | [gemini-antigravity.md](gemini-antigravity.md) |
 | Codex | MCP server + `AGENTS.md` | [codex.md](codex.md) |
 
+各工具端**實際載入過的檔案**（Claude Code slash command、Antigravity 看到的
+MCP 工具定義）封存在 [`snapshots/`](snapshots/README.md)。
+
 ## 通用 system-prompt fragment（短版）
 
 完整 conventions 在

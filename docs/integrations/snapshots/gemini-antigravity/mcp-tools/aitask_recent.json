@@ -1,0 +1,1 @@
+{"name":"aitask_recent","description":"Recently active tasks / docs (those with recent log activity) — a\n        session-start digest of where work last left off.","parameters":{"properties":{"limit":{"default":20,"title":"Limit","type":"integer"}},"title":"aitask_recentArguments","type":"object"}}
